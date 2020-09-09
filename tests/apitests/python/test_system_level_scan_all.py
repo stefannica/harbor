@@ -94,8 +94,8 @@ class TestProjects(unittest.TestCase):
         self.artifact.check_image_scan_result(TestProjects.project_Luca_name, image_b, tag_Luca, **USER_LUCA_CLIENT)
 
         #6. Swith Scanner;
-        uuid = self.scanner.scanners_get_uuid(**ADMIN_CLIENT)
-        self.scanner.scanners_registration_id_patch(uuid, **ADMIN_CLIENT)
+#        uuid = self.scanner.scanners_get_uuid(**ADMIN_CLIENT)
+#        self.scanner.scanners_registration_id_patch(uuid, **ADMIN_CLIENT)
 
         #7. Trigger scan all event;
         self.system.scan_now(**ADMIN_CLIENT)
