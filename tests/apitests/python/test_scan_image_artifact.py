@@ -84,8 +84,8 @@ class TestProjects(unittest.TestCase):
         self.artifact.check_image_scan_result(TestProjects.project_scan_image_name, image, tag, **TestProjects.USER_SCAN_IMAGE_CLIENT)
 
         #7. Swith Scanner;
-        uuid = self.scanner.scanners_get_uuid(**ADMIN_CLIENT)
-        self.scanner.scanners_registration_id_patch(uuid, **ADMIN_CLIENT)
+#        uuid = self.scanner.scanners_get_uuid(**ADMIN_CLIENT)
+#        self.scanner.scanners_registration_id_patch(uuid, **ADMIN_CLIENT)
 
         image = "tomcat"
         src_tag = "latest"
