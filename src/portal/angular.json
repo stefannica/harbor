@@ -28,14 +28,9 @@
               "node_modules/swagger-ui/dist/swagger-ui.css",
               "node_modules/prismjs/themes/prism-solarizedlight.css",
               "src/global.scss",
-              {
-                "input": "src/css/dark-theme.scss",
-                "bundleName": "dark-theme",
-                "lazy": true
-              },
-              {
-                "input": "src/css/light-theme.scss",
-                "bundleName": "light-theme",
+               {
+                "input": "src/css/suse-theme.scss",
+                "bundleName": "suse-theme",
                 "lazy": true
               }
             ],
