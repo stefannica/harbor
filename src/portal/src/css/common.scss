@@ -219,3 +219,95 @@ hbr-result-tip-histogram {
 clr-header {
   background-color: $header-color;
 }
+
+// SUSE theme specific
+body, html {
+  color: $suse-bc-gray-1000;
+  font-family: $suse-font-family1;
+}
+
+.header .branding .title,
+header .branding .title {
+  font-family: $suse-font-family2;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $suse-font-family2;
+}
+
+a {
+  color: $suse-bc-cerulean-900;
+  &:visited {
+    color: $suse-bc-cerulean-900;
+  }
+}
+
+.login-wrapper {
+ background: $suse-login-wrapper-bg !important;
+ .login .title,
+ .login-wrapper .login .trademark {
+    font-family: $suse-font-family2;
+  }
+}
+
+.btn-primary .btn,
+.btn.btn-primary {
+ border-color: $suse-bc-green-500;
+ background-color: $suse-bc-green-500;
+ &:hover {
+    background-color: $suse-bc-green-900;
+ }
+}
+
+.btn.btn-secondary, 
+.btn.btn-secondary-outline {
+  border-color: $suse-bc-green-500;
+  background-color: transparent;
+  color: $suse-bc-green-500;
+  &:hover {
+    border-color: $suse-bc-green-900;
+    background-color: transparent;
+    color: $suse-bc-green-900;
+  }
+}
+
+.btn.btn-link {
+  color: $suse-bc-green-500;
+  &:active {
+    color: $suse-bc-green-900;
+  }
+  &:hover {
+    color: $suse-bc-green-900;
+  }
+
+}
+.btn.btn-outline,
+.btn.btn-outline .btn,
+.btn.btn-outline-info {
+  border-color: $suse-bc-green-500;
+  background-color: transparent;
+  color: $suse-bc-green-500;
+  &:hover {
+    color: $suse-bc-green-900;
+  }
+}
+
+.main-container {
+    background: $suse-bc-white;
+}
+
+.clr-vertical-nav {
+  background-color: $suse-bc-gray-50;
+  .nav-link.active {
+    color: $suse-bc-white;
+    background-color: $suse-bc-green-500;
+    .nav-icon {
+      fill: $suse-bc-white;
+    }
+  }
+}
+
+.nav .nav-link.active, 
+.nav .nav-link:hover {
+  box-shadow: 0 -3px 0 $suse-bc-green-500 inset;
+}
