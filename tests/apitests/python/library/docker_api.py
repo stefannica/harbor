@@ -18,7 +18,7 @@ def docker_info_display():
     print "Command return: ", ret
 
 def docker_login_cmd(harbor_host, user, password, enable_manifest = True):
-    command = ["sudo", "docker", "login", harbor_host, "-u", user, "-p", password]
+    command = ["docker", "login", harbor_host, "-u", user, "-p", password]
     print "Docker Login Command: ", command
     base.run_command(command)
     if enable_manifest == True:
@@ -28,13 +28,13 @@ def docker_login_cmd(harbor_host, user, password, enable_manifest = True):
             raise Exception("Failed to update docker config, error is {} {}.".format(exc.returncode, exc.output))
 
 def docker_manifest_create(index, manifests):
-    command = ["sudo", "docker","manifest","create",index]
+    command = ["docker","manifest","create",index]
     command.extend(manifests)
     print "Docker Manifest Command: ", command
     base.run_command(command)
 
 def docker_manifest_push(index):
-    command = ["sudo", "docker","manifest","push",index]
+    command = ["docker","manifest","push",index]
     print "Docker Manifest Command: ", command
     ret = base.run_command(command)
     index_sha256=""
@@ -77,7 +77,10 @@ def list_image_tags(harbor_host, repository, user, password, n = None, last = No
 
 class DockerAPI(object):
     def __init__(self):
-        self.DCLIENT = docker.APIClient(base_url='unix://var/run/docker.sock',version='auto',timeout=30)
+        tls_config = docker.tls.TLSConfig(
+            client_cert=('/certs/client/cert.pem', '/certs/client/key.pem')
+        )
+        self.DCLIENT = docker.APIClient(base_url='tcp://localhost:2376',version='auto',timeout=30,tls=tls_config)
         self.DCLIENT2 = docker.from_env()
 
     def docker_login(self, registry, username, password, expected_error_message = None):
