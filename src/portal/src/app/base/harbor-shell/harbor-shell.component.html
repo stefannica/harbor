@@ -85,20 +85,12 @@
                 </clr-vertical-nav-group>
             </div>
             <div class="mb-1">
-                <ng-container *ngFor="let theme of themeArray;let i=index">
-                    <ng-container *ngIf="theme.showStyle === styleMode">
-                        <a clrVerticalNavLink (click)="themeChanged(theme)">
-                            <clr-icon clrVerticalNavIcon size="20" *ngIf="styleMode ==='DARK'" shape="sun"
-                                      class="is-solid"></clr-icon>
-                            <clr-icon clrVerticalNavIcon size="20" *ngIf="styleMode ==='LIGHT'" shape="moon"
-                                      class="is-solid"></clr-icon>
-                            {{ theme.text | translate }}
-                        </a>
-                    </ng-container>
-                </ng-container>
                 <a clrVerticalNavLink routerLinkActive="active" target="_blank" routerLink="/devcenter-api-2.0">
                     <clr-icon shape="network-globe" clrVerticalNavIcon></clr-icon>
                     {{'SIDE_NAV.HARBOR_API_MANAGEMENT' | translate}}
+                </a>
+		<a clrVerticalNavLink routerLinkActive="active" target="_blank" href="https://goharbor.io/">
+                    {{'Powered by Harbor' | translate}}
                 </a>
             </div>
         </clr-vertical-nav>
