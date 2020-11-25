@@ -4,6 +4,7 @@ import unittest
 from testutils import harbor_server, suppress_urllib3_warning
 from testutils import TEARDOWN
 from testutils import ADMIN_CLIENT
+from testutils import IMAGES_REPOSITORY
 from testutils import created_user, created_project
 from library.project import Project
 from library.user import User
@@ -44,9 +45,10 @@ class TestAssignRoleToLdapGroup(unittest.TestCase):
             9. Delete project(PA);
         """
         url = ADMIN_CLIENT["endpoint"]
-        USER_ADMIN=dict(endpoint = url, username = "admin_user", password = "zhu88jie", repo = "hello-world")
-        USER_DEV=dict(endpoint = url, username = "dev_user", password = "zhu88jie", repo = "alpine")
-        USER_GUEST=dict(endpoint = url, username = "guest_user", password = "zhu88jie", repo = "busybox")
+        repo = r"{}/library/".format(IMAGES_REPOSITORY) if IMAGES_REPOSITORY else ""
+        USER_ADMIN=dict(endpoint = url, username = "admin_user", password = "zhu88jie", repo = r"{}hello-world".format(repo))
+        USER_DEV=dict(endpoint = url, username = "dev_user", password = "zhu88jie", repo = r"{}alpine".format(repo))
+        USER_GUEST=dict(endpoint = url, username = "guest_user", password = "zhu88jie", repo = r"{}busybox".format(repo))
         USER_TEST=dict(endpoint = url, username = "test", password = "123456")
         USER_MIKE=dict(endpoint = url, username = "mike", password = "zhu88jie")
         #USER001 is in group harbor_group3
@@ -85,8 +87,8 @@ class TestAssignRoleToLdapGroup(unittest.TestCase):
             self.assertTrue(self.project.query_user_logs(project_name, **USER_GUEST)>0, "guest user can see logs")
             self.assertTrue(self.project.query_user_logs(project_name, status_code=403, **USER_TEST)==0, "test user can not see any logs")
 
-            self.repo.delete_repoitory(project_name, repo_name_admin.split('/')[1], **USER_ADMIN)
-            self.repo.delete_repoitory(project_name, repo_name_dev.split('/')[1], **USER_ADMIN)
+            self.repo.delete_repoitory(project_name, repo_name_admin.split('/', 1)[1], **USER_ADMIN)
+            self.repo.delete_repoitory(project_name, repo_name_dev.split('/', 1)[1], **USER_ADMIN)
 
 if __name__ == '__main__':
     unittest.main()

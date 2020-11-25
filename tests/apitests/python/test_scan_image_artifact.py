@@ -4,6 +4,7 @@ import sys
 
 from testutils import harbor_server, suppress_urllib3_warning
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 from testutils import ADMIN_CLIENT
 from library.project import Project
 from library.user import User
@@ -38,8 +39,8 @@ class TestScan(unittest.TestCase):
     @unittest.skipIf(TEARDOWN == True, "Test data won't be erased.")
     def do_tearDown(self):
         #1. Delete repository(RA) by user(UA);
-        self.repo.delete_repoitory(self.project_name, self.repo_name1.split('/')[1], **self.USER_CLIENT)
-        self.repo.delete_repoitory(self.project_name, self.repo_name2.split('/')[1], **self.USER_CLIENT)
+        self.repo.delete_repoitory(self.project_name, self.repo_name1.split('/', 1)[1], **self.USER_CLIENT)
+        self.repo.delete_repoitory(self.project_name, self.repo_name2.split('/', 1)[1], **self.USER_CLIENT)
 
         #2. Delete project(PA);
         self.project.delete_project(self.project_id, **self.USER_CLIENT)
@@ -73,12 +74,14 @@ class TestScan(unittest.TestCase):
         #Note: Please make sure that this Image has never been pulled before by any other cases,
         #      so it is a not-scanned image right after repository creation.
         image = "docker"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
         src_tag = "1.13"
         #5. Create a new repository(RA) and tag(TA) in project(PA) by user(UA);
         self.repo_name1, tag = push_image_to_project(self.project_name, harbor_server, self.user_name, self.user_password, image, src_tag)
 
         #6. Send scan image command and get tag(TA) information to check scan result, it should be finished;
-        self.scan.scan_artifact(self.project_name, self.repo_name1.split('/')[1], tag, **self.USER_CLIENT)
+        self.scan.scan_artifact(self.project_name, self.repo_name1.split('/', 1)[1], tag, **self.USER_CLIENT)
         self.artifact.check_image_scan_result(self.project_name, image, tag, **self.USER_CLIENT)
 
         self.do_tearDown()
@@ -105,6 +108,8 @@ class TestScan(unittest.TestCase):
         #Note: Please make sure that this Image has never been pulled before by any other cases,
         #      so it is a not-scanned image right after repository creation.
         image = "redis"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
         tag = "latest"
         #5. Create a new repository(RA) and tag(TA) in project(PA) by user(UA);
         TestScan.repo_name_1, tag = push_image_to_project(self.project_name, harbor_server, self.user_name, self.user_password, image, tag)
@@ -112,7 +117,7 @@ class TestScan(unittest.TestCase):
         sign_image(harbor_server, self.project_name, image, tag)
 
         #6. Send scan image command and get tag(TA) information to check scan result, it should be finished;
-        self.scan.scan_artifact(self.project_name, TestScan.repo_name_1.split('/')[1], tag, **self.USER_CLIENT)
+        self.scan.scan_artifact(self.project_name, TestScan.repo_name_1.split('/', 1)[1], tag, **self.USER_CLIENT)
         self.artifact.check_image_scan_result(self.project_name, image, tag, **self.USER_CLIENT)
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ import unittest
 from testutils import harbor_server, suppress_urllib3_warning
 from testutils import TEARDOWN
 from testutils import ADMIN_CLIENT
+from testutils import IMAGES_REPOSITORY
 from library.artifact import Artifact
 from library.project import Project
 from library.user import User
@@ -24,7 +25,7 @@ class TestProjects(unittest.TestCase):
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):
         #1. Delete repository(RA) by user(UA);
-        self.repo.delete_repoitory(TestProjects.project_add_g_lbl_name, TestProjects.repo_name.split('/')[1], **TestProjects.USER_add_g_lbl_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_add_g_lbl_name, TestProjects.repo_name.split('/', 1)[1], **TestProjects.USER_add_g_lbl_CLIENT)
 
         #2. Delete project(PA);
         self.project.delete_project(TestProjects.project_add_g_lbl_id, **TestProjects.USER_add_g_lbl_CLIENT)
@@ -55,6 +56,9 @@ class TestProjects(unittest.TestCase):
         """
         url = ADMIN_CLIENT["endpoint"]
         user_001_password = "Aa123456"
+        image = "hello-world"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
 
         #1. Create user-001
         TestProjects.user_add_g_lbl_id, user_add_g_lbl_name = self.user.create_user(user_password = user_001_password, **ADMIN_CLIENT)
@@ -72,13 +76,13 @@ class TestProjects(unittest.TestCase):
             expected_project_id = TestProjects.project_add_g_lbl_id, **TestProjects.USER_add_g_lbl_CLIENT)
 
         #5. Create a new repository(RA) and tag(TA) in project(PA) by user(UA);
-        TestProjects.repo_name, tag = push_image_to_project(TestProjects.project_add_g_lbl_name, harbor_server, user_add_g_lbl_name, user_001_password, "hello-world", "latest")
+        TestProjects.repo_name, tag = push_image_to_project(TestProjects.project_add_g_lbl_name, harbor_server, user_add_g_lbl_name, user_001_password, image, "latest")
 
         #6. Create a new label(LA) in project(PA) by admin;
         TestProjects.label_id, _ = self.label.create_label(**ADMIN_CLIENT)
 
         #7. Add this system global label to repository(RA)/tag(TA).
-        self.artifact.add_label_to_reference(TestProjects.project_add_g_lbl_name, TestProjects.repo_name.split('/')[1], tag, int(TestProjects.label_id), **TestProjects.USER_add_g_lbl_CLIENT)
+        self.artifact.add_label_to_reference(TestProjects.project_add_g_lbl_name, TestProjects.repo_name.split('/', 1)[1], tag, int(TestProjects.label_id), **TestProjects.USER_add_g_lbl_CLIENT)
 
 if __name__ == '__main__':
     unittest.main()

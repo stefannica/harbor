@@ -6,6 +6,7 @@ import unittest
 from testutils import ADMIN_CLIENT
 from testutils import harbor_server
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 import library.repository
 import library.docker_api
 from library.base import _assert_status_code
@@ -26,6 +27,8 @@ class TestProjects(unittest.TestCase):
         self.url = ADMIN_CLIENT["endpoint"]
         self.user_password = "Aa123456"
         self.repo_name = "hello-world"
+        if IMAGES_REPOSITORY:
+            self.repo_name = r"{}/library/{}".format(IMAGES_REPOSITORY, self.repo_name)
 
     @classmethod
     def tearDownClass(self):

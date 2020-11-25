@@ -5,6 +5,7 @@ import unittest
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import harbor_server
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 from library.artifact import Artifact
 from library.project import Project
 from library.user import User
@@ -23,7 +24,7 @@ class TestProjects(unittest.TestCase):
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):
         #1. Delete repository(RA) by user(UA);
-        self.repo.delete_repoitory(TestProjects.project_content_trust_name, TestProjects.repo_name.split('/')[1], **TestProjects.USER_CONTENT_TRUST_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_content_trust_name, TestProjects.repo_name.split('/', 1)[1], **TestProjects.USER_CONTENT_TRUST_CLIENT)
 
         #2. Delete project(PA);
         self.project.delete_project(TestProjects.project_content_trust_id, **TestProjects.USER_CONTENT_TRUST_CLIENT)
@@ -49,10 +50,12 @@ class TestProjects(unittest.TestCase):
             3. Delete user(UA);
         """
         url = ADMIN_CLIENT["endpoint"]
-        image = "hello-world"
         admin_name = ADMIN_CLIENT["username"]
         admin_password = ADMIN_CLIENT["password"]
         user_content_trust_password = "Aa123456"
+        image = "hello-world"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
 
         #1. Create a new user(UA);
         TestProjects.user_content_trust_id, user_content_trust_name = self.user.create_user(user_password = user_content_trust_password, **ADMIN_CLIENT)

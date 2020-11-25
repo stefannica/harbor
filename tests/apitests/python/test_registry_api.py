@@ -6,6 +6,7 @@ from testutils import admin_user
 from testutils import admin_pwd
 from testutils import TEARDOWN
 from testutils import ADMIN_CLIENT
+from testutils import IMAGES_REPOSITORY
 from library.system import System
 from library.project import Project
 from library.user import User
@@ -28,13 +29,15 @@ class TestProjects(unittest.TestCase):
         self.artifact = Artifact()
         self.repo = Repository()
         self.repo_name = "hello-world"
+        if IMAGES_REPOSITORY:
+            self.repo_name = r"{}/library/{}".format(IMAGES_REPOSITORY, self.repo_name)
 
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):
         #1. Delete Alice's repository and Luca's repository;
-        self.repo.delete_repoitory(TestProjects.project_Alice_name, TestProjects.repo_a.split('/')[1], **ADMIN_CLIENT)
-        self.repo.delete_repoitory(TestProjects.project_Alice_name, TestProjects.repo_b.split('/')[1], **ADMIN_CLIENT)
-        self.repo.delete_repoitory(TestProjects.project_Alice_name, TestProjects.repo_c.split('/')[1], **ADMIN_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_Alice_name, TestProjects.repo_a.split('/', 1)[1], **ADMIN_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_Alice_name, TestProjects.repo_b.split('/', 1)[1], **ADMIN_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_Alice_name, TestProjects.repo_c.split('/', 1)[1], **ADMIN_CLIENT)
 
         #2. Delete Alice's project and Luca's project;
         self.project.delete_project(TestProjects.project_Alice_id, **ADMIN_CLIENT)
@@ -61,6 +64,15 @@ class TestProjects(unittest.TestCase):
         """
         url = ADMIN_CLIENT["endpoint"]
         user_common_password = "Aa123456"
+        image_a = "busybox"
+        image_b = "alpine"
+        image_c = "hello-world"
+        src_tag = "latest"
+        if IMAGES_REPOSITORY:
+            image_a = r"{}/library/{}".format(IMAGES_REPOSITORY, image_a)
+            image_b = r"{}/library/{}".format(IMAGES_REPOSITORY, image_b)
+            image_c = r"{}/library/{}".format(IMAGES_REPOSITORY, image_c)
+
         #1. Create user Alice and Luca;
         TestProjects.user_Alice_id, user_Alice_name = self.user.create_user(user_password = user_common_password, **ADMIN_CLIENT)
 
@@ -70,13 +82,8 @@ class TestProjects(unittest.TestCase):
         TestProjects.project_Alice_id, TestProjects.project_Alice_name = self.project.create_project(metadata = {"public": "false"}, **USER_ALICE_CLIENT)
 
         #3. Push 3 images to project_Alice and Add 3 tags to the 3rd image.
-
-        src_tag = "latest"
-        image_a = "busybox"
         TestProjects.repo_a, tag_a = push_image_to_project(TestProjects.project_Alice_name, harbor_server, user_Alice_name, user_common_password, image_a, src_tag)
-        image_b = "alpine"
         TestProjects.repo_b, tag_b = push_image_to_project(TestProjects.project_Alice_name, harbor_server, user_Alice_name, user_common_password, image_b, src_tag)
-        image_c = "hello-world"
         TestProjects.repo_c, tag_c = push_image_to_project(TestProjects.project_Alice_name, harbor_server, user_Alice_name, user_common_password, image_c, src_tag)
         create_tags = ["1.0","2.0","3.0"]
         for tag in create_tags:

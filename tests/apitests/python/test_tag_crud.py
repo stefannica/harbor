@@ -6,6 +6,7 @@ import unittest
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import harbor_server
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 from library.project import Project
 from library.user import User
 from library.repository import Repository
@@ -22,6 +23,8 @@ class TestProjects(unittest.TestCase):
         self.url = ADMIN_CLIENT["endpoint"]
         self.user_password = "Aa123456"
         self.repo_name = "hello-world"
+        if IMAGES_REPOSITORY:
+            self.repo_name = r"{}/library/{}".format(IMAGES_REPOSITORY, self.repo_name)
 
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):

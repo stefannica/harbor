@@ -4,6 +4,7 @@ import unittest
 from testutils import harbor_server, suppress_urllib3_warning
 from testutils import TEARDOWN
 from testutils import ADMIN_CLIENT
+from testutils import IMAGES_REPOSITORY
 from library.system import System
 from library.project import Project
 from library.user import User
@@ -22,8 +23,8 @@ class TestScanAll(unittest.TestCase):
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):
         #1. Delete Alice's repository and Luca's repository;
-        self.repo.delete_repoitory(TestScanAll.project_Alice_name, TestScanAll.repo_Alice_name.split('/')[1], **ADMIN_CLIENT)
-        self.repo.delete_repoitory(TestScanAll.project_Luca_name, TestScanAll.repo_Luca_name.split('/')[1], **ADMIN_CLIENT)
+        self.repo.delete_repoitory(TestScanAll.project_Alice_name, TestScanAll.repo_Alice_name.split('/', 1)[1], **ADMIN_CLIENT)
+        self.repo.delete_repoitory(TestScanAll.project_Luca_name, TestScanAll.repo_Luca_name.split('/', 1)[1], **ADMIN_CLIENT)
 
         #2. Delete Alice's project and Luca's project;
         self.project.delete_project(TestScanAll.project_Alice_id, **ADMIN_CLIENT)
@@ -51,6 +52,14 @@ class TestScanAll(unittest.TestCase):
         """
         url = ADMIN_CLIENT["endpoint"]
         user_common_password = "Aa123456"
+        #Note: Please make sure that those images has never been pulled before by any other cases,
+        #          so it is a not-scanned image rigth after repository creation.
+        image_a = "mariadb"
+        image_b = "httpd"
+        src_tag = "latest"
+        if IMAGES_REPOSITORY:
+            image_a = r"{}/library/{}".format(IMAGES_REPOSITORY, image_a)
+            image_b = r"{}/library/{}".format(IMAGES_REPOSITORY, image_b)
 
         #1. Create user Alice and Luca;
         TestScanAll.user_Alice_id, user_Alice_name = self.user.create_user(user_password = user_common_password, **ADMIN_CLIENT)
@@ -64,19 +73,9 @@ class TestScanAll(unittest.TestCase):
         TestScanAll.project_Luca_id, TestScanAll.project_Luca_name = self.project.create_project(metadata = {"public": "false"}, **USER_LUCA_CLIENT)
 
         #3. Push a image to project_Alice and push another image to project_Luca;
-
-        #Note: Please make sure that this Image has never been pulled before by any other cases,
-        #          so it is a not-scanned image rigth after repository creation.
-        #image = "tomcat"
-        image_a = "mariadb"
-        src_tag = "latest"
         #3.1 Push a image to project_Alice;
         TestScanAll.repo_Alice_name, tag_Alice = push_image_to_project(TestScanAll.project_Alice_name, harbor_server, user_Alice_name, user_common_password, image_a, src_tag)
 
-        #Note: Please make sure that this Image has never been pulled before by any other cases,
-        #          so it is a not-scanned image rigth after repository creation.
-        image_b = "httpd"
-        src_tag = "latest"
         #3.2 push another image to project_Luca;
         TestScanAll.repo_Luca_name, tag_Luca = push_image_to_project(TestScanAll.project_Luca_name, harbor_server, user_Luca_name, user_common_password, image_b, src_tag)
 

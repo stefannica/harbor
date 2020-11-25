@@ -5,6 +5,7 @@ import unittest
 from testutils import harbor_server, suppress_urllib3_warning
 from testutils import TEARDOWN
 from testutils import ADMIN_CLIENT
+from testutils import IMAGES_REPOSITORY
 from library.project import Project
 from library.user import User
 from library.repository import push_image_to_project
@@ -20,7 +21,7 @@ class TestProjects(unittest.TestCase):
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):
         #1. Delete repository(RA) by admin;
-        self.repo.delete_repoitory(TestProjects.project_alice_name, TestProjects.repo_name.split('/')[1], **ADMIN_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_alice_name, TestProjects.repo_name.split('/', 1)[1], **ADMIN_CLIENT)
 
         #2. Delete project(Alice);
         self.project.delete_project(TestProjects.project_alice_id, **ADMIN_CLIENT)
@@ -54,6 +55,9 @@ class TestProjects(unittest.TestCase):
         user_alice_password = "Aa123456"
         user_bob_password = "Test1@34"
         user_carol_password = "Test1@34"
+        image = "hello-world"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
 
         #1.1 Create user Alice
         TestProjects.user_alice_id, user_alice_name = self.user.create_user(user_password = user_alice_password, **ADMIN_CLIENT)
@@ -70,7 +74,7 @@ class TestProjects(unittest.TestCase):
         TestProjects.project_alice_id, TestProjects.project_alice_name = self.project.create_project(metadata = {"public": "false"}, **USER_ALICE_CLIENT)
 
         #2.2 Add a repository to project(PA) by Alice
-        TestProjects.repo_name, _ = push_image_to_project(TestProjects.project_alice_name, harbor_server, user_alice_name, user_alice_password, "hello-world", "latest")
+        TestProjects.repo_name, _ = push_image_to_project(TestProjects.project_alice_name, harbor_server, user_alice_name, user_alice_password, image, "latest")
 
         #3. Bob is not a member of project(PA);
         self.project.check_project_member_not_exist(TestProjects.project_alice_id, user_bob_name, **USER_ALICE_CLIENT)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import base
+import os
 import subprocess
 import json
 from testutils import DOCKER_USER, DOCKER_PWD
@@ -167,11 +168,13 @@ class DockerAPI(object):
     def docker_image_build(self, harbor_registry, tags=None, size=1, expected_error_message = None):
         ret = ""
         try:
-            baseimage='busybox:latest'
+            base_img_repository = os.environ.get("HARBOR_TEST_IMAGES_REPOSITORY", "")
+            baseimage = os.path.join(base_img_repository, "library/busybox:latest")
+
             self.DCLIENT.login(username=DOCKER_USER, password=DOCKER_PWD)
             if not self.DCLIENT.images(name=baseimage):
                 self.DCLIENT.pull(baseimage)
-            c=self.DCLIENT.create_container(image='busybox:latest',command='dd if=/dev/urandom of=test bs=1M count=%d' % size )
+            c=self.DCLIENT.create_container(image=baseimage,command='dd if=/dev/urandom of=test bs=1M count=%d' % size )
             self.DCLIENT.start(c)
             self.DCLIENT.wait(c)
             if not tags:

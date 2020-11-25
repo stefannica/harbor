@@ -4,6 +4,7 @@ import unittest
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import harbor_server
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 from library.sign import sign_image
 from library.artifact import Artifact
 from library.project import Project
@@ -50,6 +51,10 @@ class TestProjects(unittest.TestCase):
         """
         url = ADMIN_CLIENT["endpoint"]
         user_001_password = "Aa123456"
+        image = "hello-world"
+        src_tag = "latest"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
 
         #1. Create user-001
         TestProjects.user_sign_image_id, user_sign_image_name = self.user.create_user(user_password = user_001_password, **ADMIN_CLIENT)
@@ -66,8 +71,6 @@ class TestProjects(unittest.TestCase):
         self.project.projects_should_exist(dict(public=False), expected_count = 1,
             expected_project_id = TestProjects.project_sign_image_id, **TestProjects.USER_sign_image_CLIENT)
 
-        image = "hello-world"
-        src_tag = "latest"
         #5. Create a new repository(RA) and tag(TA) in project(PA) by user(UA);
         TestProjects.repo_name, tag = push_image_to_project(TestProjects.project_sign_image_name, harbor_server, user_sign_image_name, user_001_password, image, src_tag)
 
@@ -81,7 +84,7 @@ class TestProjects(unittest.TestCase):
         push_special_image_to_project(TestProjects.project_sign_image_name, harbor_server, user_sign_image_name, user_001_password, self.repo_name_1, ['1.0'])
         self.repo.delete_repoitory(TestProjects.project_sign_image_name, self.repo_name_1, **TestProjects.USER_sign_image_CLIENT)
 
-        self.repo.delete_repoitory(TestProjects.project_sign_image_name, TestProjects.repo_name.split('/')[1], expect_status_code=412, expect_response_body = "with signature cannot be deleted", **TestProjects.USER_sign_image_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_sign_image_name, TestProjects.repo_name.split('/', 1)[1], expect_status_code=412, expect_response_body = "with signature cannot be deleted", **TestProjects.USER_sign_image_CLIENT)
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,6 +5,7 @@ import time
 
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 from testutils import TestResult
 from library.user import User
 from library.projectV2 import ProjectV2
@@ -48,6 +49,9 @@ class TestProjects(unittest.TestCase):
         admin_name = ADMIN_CLIENT["username"]
         admin_password = ADMIN_CLIENT["password"]
         user_content_trust_password = "Aa123456"
+        image = "tomcat"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
 
         #1. Create a new user(UA);
         TestProjects.user_user_view_logs_id, user_user_view_logs_name = self.user.create_user(user_password = user_content_trust_password, **ADMIN_CLIENT)
@@ -66,7 +70,7 @@ class TestProjects(unittest.TestCase):
                                              format(user_user_view_logs_name, project_user_view_logs_name, "project", operation, log_count))
 
         #3.1 Push a new image(IA) in project(PA) by admin;
-        repo_name, tag = push_image_to_project(project_user_view_logs_name, harbor_server, admin_name, admin_password, "tomcat", "latest")
+        repo_name, tag = push_image_to_project(project_user_view_logs_name, harbor_server, admin_name, admin_password, image, "latest")
         time.sleep(2)
 
         #3.2 In project(PA), there should be 1 'push' log record;
@@ -76,7 +80,7 @@ class TestProjects(unittest.TestCase):
             test_result.add_test_result("2 - Failed to get log with user:{}, resource:{}, resource_type:{} and operation:{}, expect count 1, but actual is {}.".
                                              format(user_user_view_logs_name, project_user_view_logs_name, "artifact", operation, log_count))
         #4.1 Delete repository(RA) by user(UA);
-        self.repo.delete_repoitory(project_user_view_logs_name, repo_name.split('/')[1], **TestProjects.USER_USER_VIEW_LOGS_CLIENT)
+        self.repo.delete_repoitory(project_user_view_logs_name, repo_name.split('/', 1)[1], **TestProjects.USER_USER_VIEW_LOGS_CLIENT)
         time.sleep(6)
 
         #4.2 In project(PA), there should be 1 'delete' log record;

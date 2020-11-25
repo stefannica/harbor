@@ -6,6 +6,7 @@ import unittest
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import harbor_server
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 import library.repository
 import library.docker_api
 import library.containerd
@@ -30,6 +31,9 @@ class TestProjects(unittest.TestCase):
         self.index_tag = "test_tag"
         self.image_a = "alpine"
         self.image_b = "busybox"
+        if IMAGES_REPOSITORY:
+            self.image_a = r"{}/library/{}".format(IMAGES_REPOSITORY, self.image_a)
+            self.image_b = r"{}/library/{}".format(IMAGES_REPOSITORY, self.image_b)
 
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):

@@ -4,6 +4,7 @@ import unittest
 
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 from testutils import harbor_server
 from library.user import User
 from library.project import Project
@@ -26,10 +27,10 @@ class TestProjects(unittest.TestCase):
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def test_ClearData(self):
         #1. Delete repository(RA) by user(UA);
-        self.repo.delete_repoitory(TestProjects.project_ra_name_a, TestProjects.repo_name_in_project_a.split('/')[1], **TestProjects.USER_RA_CLIENT)
-        self.repo.delete_repoitory(TestProjects.project_ra_name_b, TestProjects.repo_name_in_project_b.split('/')[1], **TestProjects.USER_RA_CLIENT)
-        self.repo.delete_repoitory(TestProjects.project_ra_name_c, TestProjects.repo_name_in_project_c.split('/')[1], **TestProjects.USER_RA_CLIENT)
-        self.repo.delete_repoitory(TestProjects.project_ra_name_a, TestProjects.repo_name_pa.split('/')[1], **TestProjects.USER_RA_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_ra_name_a, TestProjects.repo_name_in_project_a.split('/', 1)[1], **TestProjects.USER_RA_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_ra_name_b, TestProjects.repo_name_in_project_b.split('/', 1)[1], **TestProjects.USER_RA_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_ra_name_c, TestProjects.repo_name_in_project_c.split('/', 1)[1], **TestProjects.USER_RA_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_ra_name_a, TestProjects.repo_name_pa.split('/', 1)[1], **TestProjects.USER_RA_CLIENT)
 
         #2. Delete project(PA);
         self.project.delete_project(TestProjects.project_ra_id_a, **TestProjects.USER_RA_CLIENT)
@@ -73,6 +74,11 @@ class TestProjects(unittest.TestCase):
         image_project_c = "httpd"
         image_robot_account = "alpine"
         tag = "latest"
+        if IMAGES_REPOSITORY:
+            image_project_a = r"{}/library/{}".format(IMAGES_REPOSITORY, image_project_a)
+            image_project_b = r"{}/library/{}".format(IMAGES_REPOSITORY, image_project_b)
+            image_project_c = r"{}/library/{}".format(IMAGES_REPOSITORY, image_project_c)
+            image_robot_account = r"{}/library/{}".format(IMAGES_REPOSITORY, image_robot_account)
 
         #1. Create user(UA);"
         TestProjects.user_ra_id, user_ra_name = self.user.create_user(user_password = user_ra_password, **ADMIN_CLIENT)

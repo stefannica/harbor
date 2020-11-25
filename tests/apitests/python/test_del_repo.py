@@ -6,6 +6,7 @@ import unittest
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import harbor_server
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 from library.base import _assert_status_code
 from library.project import Project
 from library.user import User
@@ -44,6 +45,9 @@ class TestProjects(unittest.TestCase):
         """
         url = ADMIN_CLIENT["endpoint"]
         user_del_repo_password = "Aa123456"
+        image = "hello-world"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
 
         #1. Create a new user(UA);
         TestProjects.user_del_repo_id, user_del_repo_name = self.user.create_user(user_password = user_del_repo_password, **ADMIN_CLIENT)
@@ -54,14 +58,14 @@ class TestProjects(unittest.TestCase):
         TestProjects.project_del_repo_id, TestProjects.project_del_repo_name = self.project.create_project(metadata = {"public": "false"}, **TestProjects.USER_del_repo_CLIENT)
 
         #3. Create a new repository(RA) in project(PA) by user(UA);
-        repo_name, _ = push_image_to_project(TestProjects.project_del_repo_name, harbor_server, 'admin', 'Harbor12345', "hello-world", "latest")
+        repo_name, _ = push_image_to_project(TestProjects.project_del_repo_name, harbor_server, 'admin', 'Harbor12345', image, "latest")
 
         #4. Get repository in project(PA), there should be one repository which was created by user(UA);
         repo_data = self.repo.list_repositories(TestProjects.project_del_repo_name, **TestProjects.USER_del_repo_CLIENT)
         _assert_status_code(repo_name, repo_data[0].name)
 
         #5. Delete repository(RA) by user(UA);
-        self.repo.delete_repoitory(TestProjects.project_del_repo_name, repo_name.split('/')[1], **TestProjects.USER_del_repo_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_del_repo_name, repo_name.split('/', 1)[1], **TestProjects.USER_del_repo_CLIENT)
 
         #6. Get repository by user(UA), it should get nothing;
         repo_data = self.repo.list_repositories(TestProjects.project_del_repo_name, **TestProjects.USER_del_repo_CLIENT)

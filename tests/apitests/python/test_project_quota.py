@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import unittest
 
 from testutils import harbor_server, created_project, created_user, \
-                      TEARDOWN, ADMIN_CLIENT,suppress_urllib3_warning
+                      IMAGES_REPOSITORY, TEARDOWN, ADMIN_CLIENT,suppress_urllib3_warning
 from library.repository import Repository
 from library.repository import push_image_to_project
 from library.system import System
@@ -45,6 +45,8 @@ class TestProjects(unittest.TestCase):
             with created_project(metadata={"public": "false"}, user_id=user_id) as (project_id, project_name):
                 #4. Push an image to project(PA) by user(UA), then check the project quota usage; -- {"count": 1, "storage": 2791709}
                 image, tag = "goharbor/alpine", "3.10"
+                if IMAGES_REPOSITORY:
+                    image = r"{}/{}".format(IMAGES_REPOSITORY, image)
                 push_image_to_project(project_name, harbor_server, user_name, user_001_password, image, tag)
 
                 #5. Get project quota
@@ -59,7 +61,7 @@ class TestProjects(unittest.TestCase):
                 self.assertEqual(quota[0].used["storage"], 2789002)
 
                 #8. Delete repository(RA) by user(UA);
-                self.repo.delete_repoitory(project_name, "goharbor%2Falpine", **ADMIN_CLIENT)
+                self.repo.delete_repoitory(project_name, image, **ADMIN_CLIENT)
 
                 #9. Quota should be 0
                 quota = self.system.get_project_quota("project", project_id, **ADMIN_CLIENT)

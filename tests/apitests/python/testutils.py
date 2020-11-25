@@ -28,6 +28,7 @@ ADMIN_CLIENT=dict(endpoint = os.environ.get("HARBOR_HOST_SCHEMA", "https")+ "://
 CHART_API_CLIENT=dict(endpoint = os.environ.get("HARBOR_HOST_SCHEMA", "https")+ "://"+harbor_server+"/api", username = admin_user, password =  admin_pwd)
 USER_ROLE=dict(admin=0,normal=1)
 TEARDOWN = os.environ.get('TEARDOWN', 'true').lower() in ('true', 'yes')
+IMAGES_REPOSITORY = os.environ.get("HARBOR_TEST_IMAGES_REPOSITORY", "")
 notary_url = os.environ.get('NOTARY_URL', 'https://'+harbor_server+':4443')
 DOCKER_USER = os.environ.get('DOCKER_USER', '')
 DOCKER_PWD = os.environ.get('DOCKER_PWD', '')

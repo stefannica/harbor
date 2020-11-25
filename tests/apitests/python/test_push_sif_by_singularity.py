@@ -5,6 +5,7 @@ import urllib
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import harbor_server
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 import library.singularity
 from library.sign import sign_image
 from library.user import User
@@ -22,6 +23,8 @@ class TestProjects(unittest.TestCase):
         self.repo = Repository()
         self.repo_name = "busybox"
         self.tag = "1.28"
+        if IMAGES_REPOSITORY:
+            repo_name = r"{}/library/{}".format(IMAGES_REPOSITORY, repo_name)
 
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):

@@ -6,6 +6,7 @@ import unittest
 from testutils import ADMIN_CLIENT, suppress_urllib3_warning
 from testutils import harbor_server
 from testutils import TEARDOWN
+from testutils import IMAGES_REPOSITORY
 from library.base import _assert_status_code
 from library.artifact import Artifact
 from library.project import Project
@@ -25,10 +26,10 @@ class TestProjects(unittest.TestCase):
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
     def tearDown(self):
         #1. Delete repository(RA);
-        self.repo.delete_repoitory(TestProjects.project_src_repo_name, (TestProjects.src_repo_name).split('/')[1], **TestProjects.USER_RETAG_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_src_repo_name, (TestProjects.src_repo_name).split('/', 1)[1], **TestProjects.USER_RETAG_CLIENT)
 
         #2. Delete repository by retag;
-        self.repo.delete_repoitory(TestProjects.project_dst_repo_name, (TestProjects.dst_repo_name).split('/')[1], **TestProjects.USER_RETAG_CLIENT)
+        self.repo.delete_repoitory(TestProjects.project_dst_repo_name, (TestProjects.dst_repo_name).split('/', 1)[1], **TestProjects.USER_RETAG_CLIENT)
 
         #3. Delete project(PA);
         self.project.delete_project(TestProjects.project_src_repo_id, **TestProjects.USER_RETAG_CLIENT)
@@ -65,6 +66,9 @@ class TestProjects(unittest.TestCase):
         user_retag_password = "Aa123456"
         pull_tag_name = "latest"
         dst_repo_sub_name = "repo"
+        image = "hello-world"
+        if IMAGES_REPOSITORY:
+            image = r"{}/library/{}".format(IMAGES_REPOSITORY, image)
 
         #1. Create a new user(UA);
         TestProjects.user_retag_id, user_retag_name = self.user.create_user(user_password = user_retag_password, **ADMIN_CLIENT)
@@ -83,14 +87,14 @@ class TestProjects(unittest.TestCase):
         self.project.update_project_member_role(TestProjects.project_dst_repo_id, retag_member_id, 3, **ADMIN_CLIENT)
 
         #5. Create a new repository(RA) in project(PA) by user(UA);
-        TestProjects.src_repo_name, tag_name = push_image_to_project(TestProjects.project_src_repo_name, harbor_server, 'admin', 'Harbor12345', "hello-world", pull_tag_name)
+        TestProjects.src_repo_name, tag_name = push_image_to_project(TestProjects.project_src_repo_name, harbor_server, 'admin', 'Harbor12345', image, pull_tag_name)
 
         #6. Get repository in project(PA), there should be one repository which was created by user(UA);
         src_repo_data = self.repo.list_repositories(TestProjects.project_src_repo_name, **TestProjects.USER_RETAG_CLIENT)
         _assert_status_code(TestProjects.src_repo_name, src_repo_data[0].name)
 
         #7. Get repository(RA)'s image tag detail information;
-        src_tag_data = self.artifact.get_reference_info(TestProjects.project_src_repo_name, TestProjects.src_repo_name.split('/')[1], tag_name, **TestProjects.USER_RETAG_CLIENT)
+        src_tag_data = self.artifact.get_reference_info(TestProjects.project_src_repo_name, TestProjects.src_repo_name.split('/', 1)[1], tag_name, **TestProjects.USER_RETAG_CLIENT)
         TestProjects.dst_repo_name = TestProjects.project_dst_repo_name+"/"+ dst_repo_sub_name
         #8. Retag image in project(PA) to project(PB), it should be forbidden;
         self.artifact.copy_artifact(TestProjects.project_dst_repo_name, dst_repo_sub_name, TestProjects.src_repo_name+"@"+src_tag_data.digest, expect_status_code=403, **TestProjects.USER_RETAG_CLIENT)
